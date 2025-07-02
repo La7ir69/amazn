@@ -20,10 +20,6 @@
       "dest": "api/index.js"
     },
     {
-      "src": "/success",
-      "dest": "api/index.js"
-    },
-    {
       "src": "/(.*)",
       "dest": "/public/index.html"
     }
