@@ -24,8 +24,8 @@
       "dest": "api/index.js"
     },
     {
-      "src": "/(.*)", // Serve static files and index.html
-      "dest": "public/index.html"
+      "src": "/(.*)", // Serve index.html for all other routes
+      "dest": "/public/index.html"
     }
   ]
 }
