@@ -29,8 +29,17 @@
     <script>
         async function loadStep() {
             const step = new URLSearchParams(window.location.search).get('step') || 'email';
-            const response = await fetch('/session-data');
-            const sessionData = await response.json();
+            let sessionData = { error: '', user_input: '' };
+            try {
+                const response = await fetch('/session-data');
+                if (response.ok) {
+                    sessionData = await response.json();
+                } else {
+                    console.error('Failed to fetch session data:', response.status);
+                }
+            } catch (error) {
+                console.error('Error fetching session data:', error);
+            }
             const error = sessionData.error || '';
             const userInput = sessionData.user_input || '';
 
