@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-app.post('/submit', async (req, res) => {
+app.post('/', async (req, res) => {
   const step = req.query.step || 'email';
   let error = '';
 
