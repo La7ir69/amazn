@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
 });
 
 // API route for all form submissions
-app.post('/api', async (req, res) => {
+app.post('/submit', async (req, res) => {
   const step = req.body.step || 'email';
   let error = '';
 
