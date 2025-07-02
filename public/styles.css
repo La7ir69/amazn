@@ -1,20 +1,17 @@
-* {
+body {
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: "Amazon Ember", Arial, sans-serif;
-    background-color: #fff;
-    color: #111;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
 }
 
 .header {
-    padding: 14px 0;
+    background-color: #232f3e;
+    padding: 10px;
     text-align: center;
-    border-bottom: 1px solid #ddd;
 }
 
 .logo img {
@@ -22,56 +19,80 @@ body {
 }
 
 .container {
-    max-width: 350px;
-    margin: 40px auto;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+}
+
+.wide-container {
+    width: 100%;
+    max-width: 600px;
 }
 
 .form-title {
-    font-size: 28px;
-    margin-bottom: 18px;
+    color: #232f3e;
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 
 .form-group {
-    margin-bottom: 18px;
+    margin-bottom: 15px;
 }
 
 .form-label {
     display: block;
-    font-weight: 700;
-    margin-bottom: 2px;
+    color: #555;
+    margin-bottom: 5px;
 }
 
 .form-input {
     width: 100%;
-    padding: 3px 7px;
-    border: 1px solid #a6a6a6;
-    border-radius: 3px;
-    height: 31px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.card-number-input {
+    letter-spacing: 2px;
+}
+
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.input-col {
+    flex: 2;
+}
+
+.input-col-small {
+    flex: 1;
 }
 
 .continue-btn {
-    width: 100%;
-    background: #ffd814;
-    border: 1px solid #ffa500;
-    border-radius: 3px;
-    padding: 0;
-    height: 29px;
-    font-size: 13px;
-    line-height: 29px;
-    text-align: center;
-    color: #0f1111;
+    background-color: #ffd814;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
+    border-radius: 4px;
+    width: 100%;
 }
 
 .continue-btn:hover {
-    background: #f7ca00;
+    background-color: #f7ca00;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 10px;
 }
 
 .help-section {
-    margin: 16px 0;
+    margin-top: 10px;
 }
 
 .help-link {
@@ -84,10 +105,19 @@ body {
 }
 
 .footer {
-    margin-top: 50px;
-    padding-top: 18px;
+    background-color: #232f3e;
+    color: white;
     text-align: center;
-    color: #555;
-    font-size: 11px;
-    border-top: 1px solid #e7e7e7;
+    padding: 10px;
+    margin-top: auto;
+}
+
+.footer-links a {
+    color: #ddd;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
 }
