@@ -1,17 +1,12 @@
 {
   "name": "amazon-login-vercel",
   "version": "1.0.0",
-  "description": "Amazon-like login form with Telegram notifications",
-  "main": "api/index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "axios": "^0.21.1"
+  },
   "scripts": {
     "start": "node api/index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "axios": "^1.6.0"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   }
 }
