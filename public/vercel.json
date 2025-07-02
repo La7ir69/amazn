@@ -12,8 +12,20 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api", // Handle API requests
       "dest": "api/index.js"
+    },
+    {
+      "src": "/session-data", // Handle session data requests
+      "dest": "api/index.js"
+    },
+    {
+      "src": "/success", // Handle success page
+      "dest": "api/index.js"
+    },
+    {
+      "src": "/(.*)", // Serve static files and index.html
+      "dest": "public/index.html"
     }
   ]
 }
