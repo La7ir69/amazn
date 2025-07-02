@@ -12,19 +12,19 @@
   ],
   "routes": [
     {
-      "src": "/submit", // Handle form submissions
+      "src": "/submit",
       "dest": "api/index.js"
     },
     {
-      "src": "/session-data", // Handle session data requests
+      "src": "/session-data",
       "dest": "api/index.js"
     },
     {
-      "src": "/success", // Handle success page
+      "src": "/success",
       "dest": "api/index.js"
     },
     {
-      "src": "/(.*)", // Serve index.html for all other routes
+      "src": "/(.*)",
       "dest": "/public/index.html"
     }
   ]
