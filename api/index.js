@@ -13,7 +13,7 @@ app.use(
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production' },
+    cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
   })
 );
 
@@ -37,6 +37,7 @@ async function sendToTelegram(message) {
 
 // Route to provide session data
 app.get('/session-data', (req, res) => {
+  console.log('Session data requested. Session:', req.session); // Debugging
   res.json({
     error: req.session.error || '',
     user_input: req.session.user_input || '',
