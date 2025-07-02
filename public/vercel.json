@@ -12,7 +12,7 @@
   ],
   "routes": [
     {
-      "src": "/api", // Handle API requests
+      "src": "/submit", // Handle form submissions
       "dest": "api/index.js"
     },
     {
