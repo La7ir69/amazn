@@ -10,15 +10,33 @@ body {
 
 .header {
     background-color: #232f3e;
-    padding: 10px;
-    text-align: center;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.logo img {
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+.logo .amazon-logo {
     height: 40px;
 }
 
-.container {
+.nav-right a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 14px;
+}
+
+.nav-right a:hover {
+    text-decoration: underline;
+}
+
+.main-container {
     flex: 1;
     display: flex;
     justify-content: center;
@@ -26,9 +44,17 @@ body {
     padding: 20px;
 }
 
-.wide-container {
+.login-container, .step-container {
     width: 100%;
-    max-width: 600px;
+    max-width: 400px;
+}
+
+.login-box {
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .form-title {
@@ -80,6 +106,7 @@ body {
     cursor: pointer;
     border-radius: 4px;
     width: 100%;
+    margin-top: 10px;
 }
 
 .continue-btn:hover {
@@ -93,11 +120,13 @@ body {
 
 .help-section {
     margin-top: 10px;
+    text-align: center;
 }
 
 .help-link {
     color: #0066c0;
     text-decoration: none;
+    font-size: 12px;
 }
 
 .help-link:hover {
@@ -116,8 +145,41 @@ body {
     color: #ddd;
     margin: 0 10px;
     text-decoration: none;
+    font-size: 12px;
 }
 
 .footer-links a:hover {
     text-decoration: underline;
+}
+
+.wide-container {
+    max-width: 600px;
+}
+
+.hero-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.hero-image {
+    width: 100%;
+    max-width: 1200px;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.hero-subtitle {
+    font-size: 18px;
 }
